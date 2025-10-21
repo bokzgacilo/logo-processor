@@ -1,30 +1,35 @@
-import { useEffect, useState } from 'react';
-import './App.css';
+import { useState } from 'react';
 import Papa from "papaparse";
 
 function App() {
   const [data, setData] = useState([]);
 
-  useEffect(() => {
-    fetch("/data.csv")
-      .then((response) => response.text())
-      .then((csvText) => {
-        const parsedData = Papa.parse(csvText, { header: true });
-        // Remove empty rows
-        const filteredData = parsedData.data.filter(
-          (row) => Object.values(row).some((value) => value && value.trim() !== "")
+  // Handle CSV upload
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        // Filter out any empty rows
+        const filtered = results.data.filter(
+          (row) => Object.values(row).some(v => v && v.toString().trim() !== "")
         );
-        // Add extra fields
-        const enrichedData = filteredData.map((row) => ({
-          ...row,
-          logoName: "",
-          logoColor: "",
-          placement: "",
-          decoMethod: "",
+        // Ensure all extra fields exist (even if missing in CSV)
+        const enriched = filtered.map(row => ({
+          ReferenceCode: row["Reference Code"] || "",
+          ImageURL: row["Image URL"] || "",
+          logoName: row.logoName || "",
+          logoColor: row.logoColor || "",
+          placement: row.placement || "",
+          decoMethod: row.decoMethod || "",
         }));
-        setData(enrichedData);
-      });
-  }, []);
+        setData(enriched);
+      }
+    });
+  };
 
   const handleChange = (index, field, value) => {
     const updated = [...data];
@@ -32,18 +37,17 @@ function App() {
     setData(updated);
   };
 
-  // Export updated CSV
   const updateCsv = () => {
-    const headers = [
-      "Reference Code",
-      "Image URL",
-      "logoName",
-      "logoColor",
-      "placement",
-      "decoMethod"
-    ];
+    const csvData = data.map(row => ({
+      "Reference Code": row.ReferenceCode,
+      "Image URL": row.ImageURL,
+      logoName: row.logoName,
+      logoColor: row.logoColor,
+      placement: row.placement,
+      decoMethod: row.decoMethod
+    }));
 
-    const csv = Papa.unparse(data, { columns: headers }); // ensure all columns
+    const csv = Papa.unparse(csvData);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -55,14 +59,15 @@ function App() {
   };
 
   return (
+    <div style={{ padding: "1rem" }}>
+      <input type="file" accept=".csv" onChange={handleFileUpload} />
 
-    <>
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)", // 4 equal columns
-          gap: "1rem", // space between items
-          padding: "1rem",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "1rem",
+          marginTop: "20px"
         }}
       >
         {data.map((row, index) => (
@@ -70,29 +75,23 @@ function App() {
             key={index}
             style={{
               display: "flex",
-              marginBottom: "15px",
               gap: "10px",
-              flexWrap: "wrap",
+              flexDirection: "row",
             }}
           >
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "0.5rem"
+                gap: "10px",
               }}
             >
               <input
                 disabled
                 type="text"
-                value={row["Reference Code"] || ""}
+                value={row.ReferenceCode}
                 style={{ padding: "0.5rem" }}
-                onChange={(e) =>
-                  handleChange(index, "Reference Code", e.target.value)
-
-                }
               />
-              {/* New inputs for logo info */}
               <input
                 type="text"
                 placeholder="Logo Name"
@@ -122,14 +121,12 @@ function App() {
                 onChange={(e) => handleChange(index, "decoMethod", e.target.value)}
               />
             </div>
-            {/* Reference Code */}
 
-            {/* Image */}
-            {row["Image URL"] && (
+            {row.ImageURL && (
               <img
-                src={row["Image URL"]}
-                alt={row["Reference Code"]}
-                style={{ width: "400px", height: "auto", border: "1px solid #ccc" }}
+                src={row.ImageURL}
+                alt={row.ReferenceCode}
+                style={{ width: "100%", maxWidth: "400px", height: "auto", border: "1px solid #ccc" }}
               />
             )}
           </div>
@@ -139,12 +136,12 @@ function App() {
       {data.length > 0 && (
         <button
           onClick={updateCsv}
-          style={{ marginTop: "20px", padding: "10px 20px", fontSize: "16px" }}
+          style={{ marginTop: "20px", padding: "1rem", fontSize: "14px" }}
         >
           Update CSV
         </button>
       )}
-    </>
+    </div>
   );
 }
 
