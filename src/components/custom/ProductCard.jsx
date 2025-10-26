@@ -46,7 +46,7 @@ export default function ProductCard({ index, handleChange, data }) {
           )}
           {!error && (
             <Image
-              objectFit="contain"
+              objectFit="cover"
               key={retryKey}
               src={data.ImageURL}
               alt={data.ReferenceCode}
@@ -87,7 +87,7 @@ export default function ProductCard({ index, handleChange, data }) {
         </SimpleGrid>
       </Card.Body>
       <Card.Footer>
-        
+
       </Card.Footer>
     </Card.Root>
   )
