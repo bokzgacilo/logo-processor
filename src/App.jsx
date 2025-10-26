@@ -1,35 +1,42 @@
-import { useState } from 'react';
+import { ActionBar, Box, Button, Container, FileUpload, Flex, Heading, HStack, Icon, Portal, RadioCard, SimpleGrid, Stack, Text } from '@chakra-ui/react';
 import Papa from "papaparse";
+import { useState } from 'react';
+import { LuUpload } from 'react-icons/lu';
+import ProductCard from './components/custom/ProductCard';
+import { useColorMode, useColorModeValue } from './components/ui/color-mode';
 
 function App() {
   const [data, setData] = useState([]);
+  // const [File, SetFile] = useState(null)
+  const { toggleColorMode } = useColorMode();
+  const [columns, setColumns] = useState(3)
+  const bg = useColorModeValue("gray.50", "")
+  const bgHeader = useColorModeValue("#fff", "#000")
+  const modeText = useColorModeValue("Dark", "Light")
 
-  // Handle CSV upload
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const handleFileUpload = (File) => {
+    if (!File) return;
 
-    Papa.parse(file, {
+    Papa.parse(File, {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        // Filter out any empty rows
         const filtered = results.data.filter(
           (row) => Object.values(row).some(v => v && v.toString().trim() !== "")
         );
-        // Ensure all extra fields exist (even if missing in CSV)
         const enriched = filtered.map(row => ({
           ReferenceCode: row["Reference Code"] || "",
           ImageURL: row["Image URL"] || "",
-          logoName: row.logoName || "",
-          logoColor: row.logoColor || "",
-          placement: row.placement || "",
-          decoMethod: row.decoMethod || "",
+          logoName: row["Logo Name"] || "",
+          logoColor: row["Logo Color"] || "",
+          placement: row["Logo Placement"] || "",
+          decoMethod: row["Deco Method"] || "",
+          noLogo: row["No Logo"] === "true" || row["No Logo"] === true || false,
         }));
         setData(enriched);
       }
     });
-  };
+  }
 
   const handleChange = (index, field, value) => {
     const updated = [...data];
@@ -41,10 +48,11 @@ function App() {
     const csvData = data.map(row => ({
       "Reference Code": row.ReferenceCode,
       "Image URL": row.ImageURL,
-      logoName: row.logoName,
-      logoColor: row.logoColor,
-      placement: row.placement,
-      decoMethod: row.decoMethod
+      "Logo Name": row.logoName,
+      "Logo Color": row.logoColor,
+      "Placement": row.placement,
+      "Deco Method": row.decoMethod,
+      "No Logo": row.noLogo
     }));
 
     const csv = Papa.unparse(csvData);
@@ -59,89 +67,96 @@ function App() {
   };
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <input type="file" accept=".csv" onChange={handleFileUpload} />
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: "1rem",
-          marginTop: "20px"
-        }}
+    <Container maxW="full" p={0}>
+      <Flex
+        p={4}
+        boxShadow="rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;"
+        justifyContent="space-between"
+        position="sticky"
+        top={0}
+        zIndex={5}
+        direction="row"
+        alignItems="center"
+        bg={bgHeader}
       >
-        {data.map((row, index) => (
-          <div
-            key={index}
-            style={{
-              display: "flex",
-              gap: "10px",
-              flexDirection: "row",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
-              }}
-            >
-              <input
-                disabled
-                type="text"
-                value={row.ReferenceCode}
-                style={{ padding: "0.5rem" }}
-              />
-              <input
-                type="text"
-                placeholder="Logo Name"
-                value={row.logoName}
-                style={{ padding: "0.5rem" }}
-                onChange={(e) => handleChange(index, "logoName", e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Logo Color"
-                value={row.logoColor}
-                style={{ padding: "0.5rem" }}
-                onChange={(e) => handleChange(index, "logoColor", e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Placement"
-                value={row.placement}
-                style={{ padding: "0.5rem" }}
-                onChange={(e) => handleChange(index, "placement", e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Deco Method"
-                value={row.decoMethod}
-                style={{ padding: "0.5rem" }}
-                onChange={(e) => handleChange(index, "decoMethod", e.target.value)}
-              />
-            </div>
+        <Heading size="2xl">Product Logo Review Tool</Heading>
+        <Button rounded="full" onClick={toggleColorMode}>{modeText}</Button>
+      </Flex>
+      <Stack gap={4} p={4} placeItems="center" hidden={data.length > 0}>
+        <Heading w="500px">Upload Data</Heading>
+        <Box w="500px">
+          <FileUpload.Root onFileAccept={(files) => handleFileUpload(files.files[0])} onFileChange={(files) => handleFileUpload(files.files)} accept={["text/csv"]} maxFiles={1} >
+            <FileUpload.HiddenInput />
+            <FileUpload.Dropzone>
+              <Icon size="xl">
+                <LuUpload />
+              </Icon>
+              <FileUpload.DropzoneContent w="500px">
+                <Stack gap={0}>
+                  <Text fontSize="16px">Drag and drop files here</Text>
+                  <Text mt={2} fontSize="16px">or click below to browse files</Text>
+                  <FileUpload.Trigger asChild>
+                    <Button my={4} rounded="full">Browse File</Button>
 
-            {row.ImageURL && (
-              <img
-                src={row.ImageURL}
-                alt={row.ReferenceCode}
-                style={{ width: "100%", maxWidth: "400px", height: "auto", border: "1px solid #ccc" }}
-              />
-            )}
-          </div>
-        ))}
-      </div>
+                  </FileUpload.Trigger>
+                  <Text fontSize="12px">.csv only up to 5MB</Text>
+                </Stack>
+              </FileUpload.DropzoneContent>
+            </FileUpload.Dropzone>
+          </FileUpload.Root>
+        </Box>
+      </Stack>
 
-      {data.length > 0 && (
-        <button
-          onClick={updateCsv}
-          style={{ marginTop: "20px", padding: "1rem", fontSize: "14px" }}
-        >
-          Update CSV
-        </button>
-      )}
-    </div>
+      <SimpleGrid columns={{ base: 1, md: 2, lg: columns }} gap={4} p={4} bg={bg} hidden={data.length === 0}>
+        {data.map((row, index) => <ProductCard key={index} index={index} handleChange={handleChange} data={row} />)}
+      </SimpleGrid>
+
+      <ActionBar.Root open={data.length > 0}>
+        <Portal>
+          <ActionBar.Positioner>
+            <ActionBar.Content rounded="full">
+              <ActionBar.SelectionTrigger rounded="full">
+                {data.length} items
+              </ActionBar.SelectionTrigger>
+              <ActionBar.Separator />
+              <HStack>
+                <RadioCard.Root
+                  orientation="horizontal"
+                  alignItems="center"
+                  justify="center"
+                  defaultValue={columns}
+                  value={columns} onValueChange={(e) => setColumns(e.value)}
+                  variant="solid"
+                >
+                  <HStack
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    {[2, 3, 4].map((item) => (
+                      <RadioCard.Item key={item} value={item} cursor="pointer" >
+                        <RadioCard.ItemHiddenInput />
+                        <RadioCard.ItemControl>
+                          {item}
+                        </RadioCard.ItemControl>
+                      </RadioCard.Item>
+                    ))}
+                  </HStack>
+                </RadioCard.Root>
+              </HStack>
+              <ActionBar.Separator />
+              <Button rounded="full" variant="outline" onClick={() => {
+                setData([])
+              }}>
+                Reset
+              </Button>
+              <Button rounded="full" onClick={updateCsv}>
+                Update CSV
+              </Button>
+            </ActionBar.Content>
+          </ActionBar.Positioner>
+        </Portal>
+      </ActionBar.Root>
+    </Container>
   );
 }
 
