@@ -1,4 +1,4 @@
-import { Box, Button, Card, CheckboxCard, Flex, Icon, Image, Input, SimpleGrid, Skeleton, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Card, CheckboxCard, Field, Flex, Icon, Image, Input, SimpleGrid, Skeleton, Stack, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { PiImageBroken } from "react-icons/pi";
 
@@ -34,8 +34,8 @@ export default function ProductCard({ index, handleChange, data }) {
         </Flex>
       </Card.Header>
       <Card.Body p={4}>
-        <SimpleGrid templateColumns="35% 1fr" gap={4}>
-          <Stack>
+        <SimpleGrid templateColumns="40% 1fr" gap={4}>
+          <Stack gap={4}>
             <Input placeholder="Logo Name" value={data.logoName} disabled={noLogo || error} onChange={(e) => handleChange(index, "logoName", e.target.value)} />
             <Input placeholder="Logo Color" value={data.logoColor} disabled={noLogo || error} onChange={(e) => handleChange(index, "logoColor", e.target.value)} />
             <Input placeholder="Placement" value={data.placement} disabled={noLogo || error} onChange={(e) => handleChange(index, "placement", e.target.value)} />
@@ -46,7 +46,6 @@ export default function ProductCard({ index, handleChange, data }) {
           )}
           {!error && (
             <Image
-              cursor="pointer"
               objectFit="contain"
               key={retryKey}
               src={data.ImageURL}
@@ -87,6 +86,9 @@ export default function ProductCard({ index, handleChange, data }) {
           {/* <Image src={data.ImageURL} onError={(e) => console.log(e)} rounded="xl" /> */}
         </SimpleGrid>
       </Card.Body>
+      <Card.Footer>
+        
+      </Card.Footer>
     </Card.Root>
   )
 }

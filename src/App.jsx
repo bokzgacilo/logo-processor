@@ -1,7 +1,7 @@
-import { ActionBar, Box, Button, Container, FileUpload, Flex, Heading, HStack, Icon, Portal, RadioCard, SimpleGrid, Stack, Text } from '@chakra-ui/react';
+import { ActionBar, Box, Button, Container, DownloadTrigger, FileUpload, Flex, Heading, HStack, Icon, Portal, RadioCard, SimpleGrid, Stack, Text } from '@chakra-ui/react';
 import Papa from "papaparse";
 import { useState } from 'react';
-import { LuUpload } from 'react-icons/lu';
+import { LuDownload, LuRefreshCcw, LuSave, LuUpload } from 'react-icons/lu';
 import ProductCard from './components/custom/ProductCard';
 import { useColorMode, useColorModeValue } from './components/ui/color-mode';
 
@@ -29,7 +29,7 @@ function App() {
           ImageURL: row["Image URL"] || "",
           logoName: row["Logo Name"] || "",
           logoColor: row["Logo Color"] || "",
-          placement: row["Logo Placement"] || "",
+          placement: row["Placement"] || "",
           decoMethod: row["Deco Method"] || "",
           noLogo: row["No Logo"] === "true" || row["No Logo"] === true || false,
         }));
@@ -82,8 +82,14 @@ function App() {
         <Heading size="2xl">Product Logo Review Tool</Heading>
         <Button rounded="full" onClick={toggleColorMode}>{modeText}</Button>
       </Flex>
-      <Stack gap={4} p={4} placeItems="center" hidden={data.length > 0}>
-        <Heading w="500px">Upload Data</Heading>
+      <Stack height="100dvh" bg={bg} gap={4} p={4} placeItems="center" hidden={data.length > 0}>
+        <Heading w="500px" mt={12}>Step 1: Prepare CSV</Heading>
+        <DownloadTrigger
+          
+        >
+          <Button size="xl" rounded="full">Download CSV Template <LuDownload/></Button>
+        </DownloadTrigger>
+        <Heading w="500px" mt={6}>Step 2: Upload Data</Heading>
         <Box w="500px">
           <FileUpload.Root onFileAccept={(files) => handleFileUpload(files.files[0])} onFileChange={(files) => handleFileUpload(files.files)} accept={["text/csv"]} maxFiles={1} >
             <FileUpload.HiddenInput />
@@ -96,8 +102,7 @@ function App() {
                   <Text fontSize="16px">Drag and drop files here</Text>
                   <Text mt={2} fontSize="16px">or click below to browse files</Text>
                   <FileUpload.Trigger asChild>
-                    <Button my={4} rounded="full">Browse File</Button>
-
+                    <Button my={4} rounded="full" size="xl">Browse File <LuUpload /></Button>
                   </FileUpload.Trigger>
                   <Text fontSize="12px">.csv only up to 5MB</Text>
                 </Stack>
@@ -107,7 +112,7 @@ function App() {
         </Box>
       </Stack>
 
-      <SimpleGrid columns={{ base: 1, md: 2, lg: columns }} gap={4} p={4} bg={bg} hidden={data.length === 0}>
+      <SimpleGrid columns={{ base: 1, md: 2, lg: columns }} gap={4} p={4}  hidden={data.length === 0}>
         {data.map((row, index) => <ProductCard key={index} index={index} handleChange={handleChange} data={row} />)}
       </SimpleGrid>
 
@@ -127,6 +132,7 @@ function App() {
                   defaultValue={columns}
                   value={columns} onValueChange={(e) => setColumns(e.value)}
                   variant="solid"
+                  size="sm"
                 >
                   <HStack
                     justifyContent="center"
@@ -147,10 +153,10 @@ function App() {
               <Button rounded="full" variant="outline" onClick={() => {
                 setData([])
               }}>
-                Reset
+                Reset <LuRefreshCcw />
               </Button>
               <Button rounded="full" onClick={updateCsv}>
-                Update CSV
+                Update CSV <LuSave />
               </Button>
             </ActionBar.Content>
           </ActionBar.Positioner>
