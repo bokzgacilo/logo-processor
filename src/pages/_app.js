@@ -1,8 +1,11 @@
 import "@/styles/globals.css";
 import { Provider } from "@/components/ui/provider";
+import { DataProvider } from "@/context/DataContext";
 
 export default function App({ Component, pageProps }) {
   return <Provider>
-    <Component {...pageProps} />
+    <DataProvider>
+      <Component {...pageProps} />
+    </DataProvider>
   </Provider>
 }
