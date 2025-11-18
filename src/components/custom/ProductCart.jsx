@@ -59,8 +59,8 @@ export default function ProductCard({ index, handleChange, data }) {
         </Flex>
       </Card.Header>
       <Card.Body p={4}>
-        <SimpleGrid templateColumns="40% 1fr" gap={4}>
-          <Stack gap={4}>
+        <SimpleGrid templateColumns={{base: "1fr",lg:"40% 1fr"}} gap={4}>
+          <Stack gap={4} order={{base: 2, lg: 1}}>
             <Input
               placeholder="Logo Name"
               value={data.logoName}
@@ -93,6 +93,7 @@ export default function ProductCard({ index, handleChange, data }) {
               h={{ base: "280px", md: "320px", lg: "350px" }}
               width="100%"
               rounded="xl"
+              order={{base: 1, lg: 2}}
             />
           )}
           {!error && (
@@ -110,6 +111,7 @@ export default function ProductCard({ index, handleChange, data }) {
               width="100%"
               display={loaded ? "block" : "none"}
               rounded="xl"
+              order={{base: 1, lg: 2}}
             />
           )}
           {error && (

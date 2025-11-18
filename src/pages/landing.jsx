@@ -14,6 +14,7 @@ import Papa from "papaparse";
 import { useData } from "@/context/DataContext";
 import { Toaster, toaster } from "@/components/ui/toaster";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function Landing() {
   const { setData } = useData();
@@ -82,21 +83,19 @@ export default function Landing() {
   };
 
   return (
-    <Stack height="92dvh" gap={4} p={4} placeItems="center">
+    <Stack height="92dvh" gap={4} p={4}  w={{base: "100%", lg: "500px"}} alignSelf="center">
       <Toaster />
-      <Heading w="500px" mt={12}>
+      <Heading mt={12} size={{base: "md", lg: "2xl"}}>
         Step 1: Prepare CSV
       </Heading>
-      <Button size="xl" rounded="full">
-        <a href="/Template.csv" download>
-          Download CSV Template
-        </a>
+      <Button size="xl" rounded="full" as={Link} href="/Template.csv" download>
+        Download CSV Template
         <LuDownload />
       </Button>
-      <Heading w="500px" mt={6}>
+      <Heading mt={6} size={{base: "md", lg: "2xl"}}>
         Step 2: Upload Data
       </Heading>
-      <Box w="500px">
+      <Box>
         <FileUpload.Root
           onFileAccept={(files) => handleFileUpload(files.files[0])}
           onFileChange={(files) => handleFileUpload(files.files)}
@@ -104,18 +103,20 @@ export default function Landing() {
           maxFiles={1}
         >
           <FileUpload.HiddenInput />
-          <FileUpload.Dropzone>
+          <FileUpload.Dropzone
+            w="100%"
+          >
             <Icon size="xl">
               <LuUpload />
             </Icon>
-            <FileUpload.DropzoneContent w="500px">
+            <FileUpload.DropzoneContent>
               <Stack gap={0}>
                 <Text fontSize="16px">Drag and drop files here</Text>
                 <Text mt={2} fontSize="16px">
                   or click below to browse files
                 </Text>
                 <FileUpload.Trigger asChild>
-                  <Button my={4} rounded="full" size="xl" loading={loading}>
+                  <Button my={4} rounded="full" size="xl" loading={loading} loadingText="Loading...">
                     Browse File <LuUpload />
                   </Button>
                 </FileUpload.Trigger>
