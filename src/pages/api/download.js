@@ -1,6 +1,11 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import Papa from "papaparse";
+
+import { getColorCode } from "@/helper/getColorCode";
+import { getDecoMethodCode } from "@/helper/getDecoMethodCode";
+import { getLogoCode } from "@/helper/getLogoCode";
+import { getPlacementCode } from "@/helper/getPlacementCode";
 import JSZip from "jszip";
+import Papa from "papaparse";
 
 export const config = {
   api: {
@@ -30,17 +35,30 @@ export default async function handler(req, res) {
   }));
 
   const csv = Papa.unparse(csvData);
-
-  // Put CSV under zip/products/products.csv
   zip.folder("products").file("products.csv", csv);
-
-  // ---------- 2. Download images & add to zip ----------
   const imagesFolder = zip.folder("images");
 
   for (const row of data) {
     const url = row.ImageURL;
-    const filename = `${row.ReferenceCode}.jpg`;
 
+    const color_code = getColorCode(row.logoColor);
+    const deco_method_code = getDecoMethodCode(row.decoMethod);
+    const logo_code = getLogoCode(row.logoName);
+    const placement_code = getPlacementCode(row.placement);
+
+    const parts = [
+      row.ReferenceCode,
+      logo_code,
+      color_code,
+      placement_code,
+      deco_method_code
+    ];
+
+    // remove null, undefined, empty strings
+    const filtered = parts.filter(p => p && p !== "");
+
+    // join with correct format
+    const filename = filtered.join("_") + ".jpg";
     if (!url) continue;
 
     try {
