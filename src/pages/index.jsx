@@ -1,16 +1,15 @@
 "use client";
 
-import { Box, Container, Flex, Heading, Stack } from "@chakra-ui/react";
+import { Container, Flex, Heading, Stack } from "@chakra-ui/react";
 import Head from "next/head";
 import { useData } from "@/context/DataContext";
 import Landing from "./landing";
 import MainGrid from "./main-grid";
-import { ColorModeButton, useColorModeValue } from "@/components/ui/color-mode";
+import { ColorModeButton, useColorMode } from "@/components/ui/color-mode";
 
 export default function Layout() {
   const { data } = useData();
-  const headerbg = useColorModeValue("#fff", "#000")
-  const dot = useColorModeValue("radial-gradient(#dfdfdf 1px, transparent 1px)", "radial-gradient(#3c3c3c 1px, transparent 1px)")
+  const {colorMode} = useColorMode();
 
   return (
     <>
@@ -19,7 +18,7 @@ export default function Layout() {
       </Head>
       <Container maxW="full" p={0}>
         <Flex
-          bg={headerbg}
+          bg={colorMode === 'light' ? "#fff" : "#000"}
           height="8vh"
           p={4}
           boxShadow="rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;"
@@ -34,7 +33,7 @@ export default function Layout() {
           <ColorModeButton />
         </Flex>
         <Stack
-          bgImage={dot}
+          bgImage={colorMode === 'light' ? "radial-gradient(#f5f5f5 1px, transparent 1px)" : "radial-gradient(#333333 1px, transparent 1px)"}
           bgSize={"16px 14px"}
         >
         {data.length === 0 ? <Landing /> : <MainGrid />}
